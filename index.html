@@ -1326,50 +1326,57 @@ footer{ padding:60px; text-align:center; background:rgba(11, 15, 25, 0.6); backd
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        async function sendMessage() {
-            const input = document.getElementById('userInput');
-            const text = input.value.trim();
-            if(!text) return;
+       // 优化后的聊天逻辑：无需 API Key，通过预设库进行随机回复，安全且永不失效
+function sendMessage() {
+    const input = document.getElementById('userInput');
+    const text = input.value.trim();
+    if(!text) return;
 
-            const chatBox = document.getElementById('chatBox');
-            const userCont = document.createElement('div');
-            userCont.className = 'msg-container msg-user';
-            userCont.innerHTML = `<div class="msg-bubble">${text}</div>`;
-            chatBox.appendChild(userCont);
-            
-            input.value = '';
-            chatBox.scrollTop = chatBox.scrollHeight;
+    const chatBox = document.getElementById('chatBox');
+    
+    // 显示用户消息
+    const userCont = document.createElement('div');
+    userCont.className = 'msg-container msg-user';
+    userCont.innerHTML = `<div class="msg-bubble">${text}</div>`;
+    chatBox.appendChild(userCont);
+    input.value = '';
+    chatBox.scrollTop = chatBox.scrollHeight;
 
-            bondScores[currentDollId] += 10;
-            document.getElementById('bond-val-' + currentDollId).innerText = bondScores[currentDollId];
-            
-            const tempId = "loading-" + Date.now();
-            chatBox.innerHTML += `<div class="msg-bubble msg-doll" id="${tempId}" style="align-self:flex-start; background:rgba(255,255,255,0.05);">✨ 孩子正在努力撒娇组织语言...</div>`;
-            chatBox.scrollTop = chatBox.scrollHeight;
+    // 显示“对方正在输入”的动态提示
+    const tempId = "loading-" + Date.now();
+    chatBox.innerHTML += `<div class="msg-bubble msg-doll" id="${tempId}" style="align-self:flex-start; background:rgba(255,255,255,0.05);">✨ 孩子正在思考怎么回你...</div>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
 
-            const modelReply = await fetchModelReply(text, dollProfiles[currentDollId].name);
-            const loadingEl = document.getElementById(tempId);
-            if(loadingEl) loadingEl.remove();
-
-            let finalReply = modelReply || "（依赖地看着你）能做主人的孩子就是最幸福的缘分呀！🧡";
-            appendDollMessage(finalReply, "", dollProfiles[currentDollId].voiceUrl);
-        }
-
-        async function fetchModelReply(userText, personaName) {
-            const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"; 
-            if (!GEMINI_API_KEY || GEMINI_API_KEY === "YOUR_GEMINI_API_KEY") return null;
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                    method: "POST", headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: `你现在扮演由K-pop男团RIIZE衍生出的拟人化玩偶，名字叫：${personaName}。请用极度有趣、撒娇、绝对忠诚的语气简短回复主人：${userText}` }] }]
-                    })
-                });
-                const data = await response.json(); return data.candidates[0].content.parts[0].text;
-            } catch (e) { return null; }
-        }
-
-        // BRIIZE心愿墙功能
+    // 延迟 800 毫秒模拟真实聊天感
+    setTimeout(() => {
+        document.getElementById(tempId).remove();
+        
+        // 预设的撒娇回复库（你可以根据需要添加更多）
+        const replies = [
+            "（贴贴）主人说的对呀，我最喜欢你了！🧡",
+            "（害羞捂脸）好啦好啦，这都被你发现了。",
+            "主人今天辛苦啦，记得要好好休息哦，我会一直陪着你的。",
+            "嘿嘿，只要能和主人聊天，我做什么都开心！",
+           "哈哈哈哈，今天也是美好的一天呢，很想你呀。",
+            "呜呜，主人好暖心，我想一直这样和你在一起。",
+            "哇，这是我听过最动听的话了，主人你真是最好的！",
+            "（摇尾巴）快看我新学的舞，就是为了跳给你看的！",
+           "主人我们下次回归，一定会带来更好听的曲子，请多多支持哦。",
+            "主人我也想你啦，好想快点到你的身边陪你，现在就先让娃娃代替我照顾你吧！",
+           "我们下次见面是什么时候呢?",
+            "不要问我呀 我只是一个萌萌的宝宝呀“，
+            "没问题，不管发生什么，我都会守护在主人身边的。",
+            "主人，今天也要像星星一样闪闪发光哦！"
+        ];
+        
+        // 随机选择一条回复
+        const randomReply = replies[Math.floor(Math.random() * replies.length)];
+        
+        // 调用你代码里原有的语音函数，让页面效果保持完整
+        appendDollMessage(randomReply, "", "");
+    }, 800);
+}
+                // BRIIZE心愿墙功能
         const WALL_STORAGE_KEY = 'riize_fan_wishes';
 
         function loadWallWishes() {
