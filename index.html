@@ -1325,8 +1325,8 @@ footer{ padding:60px; text-align:center; background:rgba(11, 15, 25, 0.6); backd
             chatBox.appendChild(msgCont);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
+let hasPlayedVoice = false; // 全局变量，放在 script 标签的最上方
 
-       // 优化后的聊天逻辑：无需 API Key，通过预设库进行随机回复，安全且永不失效
 function sendMessage() {
     const input = document.getElementById('userInput');
     const text = input.value.trim();
@@ -1347,36 +1347,42 @@ function sendMessage() {
     chatBox.innerHTML += `<div class="msg-bubble msg-doll" id="${tempId}" style="align-self:flex-start; background:rgba(255,255,255,0.05);">✨ 孩子正在思考怎么回你...</div>`;
     chatBox.scrollTop = chatBox.scrollHeight;
 
-    // 延迟 800 毫秒模拟真实聊天感
     setTimeout(() => {
         document.getElementById(tempId).remove();
         
-        // 预设的撒娇回复库（你可以根据需要添加更多）
         const replies = [
             "（贴贴）主人说的对呀，我最喜欢你了！🧡",
             "（害羞捂脸）好啦好啦，这都被你发现了。",
             "主人今天辛苦啦，记得要好好休息哦，我会一直陪着你的。",
             "嘿嘿，只要能和主人聊天，我做什么都开心！",
-           "哈哈哈哈，今天也是美好的一天呢，很想你呀。",
+            "哈哈哈哈，今天也是美好的一天呢，很想你呀。",
             "呜呜，主人好暖心，我想一直这样和你在一起。",
             "哇，这是我听过最动听的话了，主人你真是最好的！",
             "（摇尾巴）快看我新学的舞，就是为了跳给你看的！",
-           "主人我们下次回归，一定会带来更好听的曲子，请多多支持哦。",
+            "主人我们下次回归，一定会带来更好听的曲子，请多多支持哦。",
             "主人我也想你啦，好想快点到你的身边陪你，现在就先让娃娃代替我照顾你吧！",
-           "我们下次见面是什么时候呢?",
-            "不要问我呀 我只是一个萌萌的宝宝呀“，
+            "我们下次见面是什么时候呢?",
+            "不要问我呀，我只是一个萌萌的宝宝呀。",
             "没问题，不管发生什么，我都会守护在主人身边的。",
             "主人，今天也要像星星一样闪闪发光哦！"
         ];
         
-        // 随机选择一条回复
         const randomReply = replies[Math.floor(Math.random() * replies.length)];
         
-        // 调用你代码里原有的语音函数，让页面效果保持完整
-        appendDollMessage(randomReply, "", "");
+        // 核心修改：hasPlayedVoice 为 false 时才触发语音
+        if (!hasPlayedVoice) {
+            // 这里调用你原本的语音函数，假设函数名是 appendDollMessage
+            // 如果你原本的语音函数名不同（如 playVoice），请改为那个名字
+            appendDollMessage(randomReply, randomReply, ""); 
+            hasPlayedVoice = true; 
+        } else {
+            // 后续只发文字
+            appendDollMessage(randomReply, "", "");
+        }
     }, 800);
 }
-                // BRIIZE心愿墙功能
+
+                      // BRIIZE心愿墙功能
         const WALL_STORAGE_KEY = 'riize_fan_wishes';
 
         function loadWallWishes() {
